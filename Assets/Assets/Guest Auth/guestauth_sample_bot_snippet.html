@@ -1,0 +1,122 @@
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+	</head>
+	<body>
+		<script type='text/javascript' src='https://service.force.com/embeddedservice/5.0/esw.min.js'></script>
+		<script type='text/javascript'>
+			//***CALL THIS METHOD ON LOGIN, AND PASS REQUIRED ATTRIBUTES.***// 
+			function registerAuthenticatedMessage(oUserInfo) {
+				console.log("start auth message");
+				var event = new CustomEvent(
+					"bot-authenticated-message", {
+						detail: {
+							"[AUTO]-CHECKLOGIN" : {
+								"Success":true,
+								"FirstName":oUserInfo.firstName,
+								"LastName":oUserInfo.lastName,
+								"Email":oUserInfo.email
+							}
+						}
+					}
+				);
+				window.dispatchEvent(event);
+			}
+
+			//***CALL THIS METHOD ON LOGOUT***//
+			function clearAuthenticatedMessage() {
+				console.log("clear auth message");
+				var event = new CustomEvent(
+					"bot-authenticated-message", {
+						detail: {
+							"[AUTO]-CHECKLOGIN" : {
+								"Success":false,
+								"FirstName":"",
+								"LastName":"",
+								"Email":""
+							}
+						}
+					}
+				);
+				window.dispatchEvent(event);
+			}
+
+			window.addEventListener('DOMContentLoaded', init, false);
+			function init() {
+				console.log("register listener");
+				window.addEventListener("bot-authenticated-message", receiveMessage, false);
+				message = {
+				    "[SIGNIN-STATUS]": {
+					    "Success": false,
+						"FirstName": "",
+						"LastName": "",
+					    "Email": ""
+				    }
+				};
+			}
+
+			function receiveMessage(event) {
+				console.log("Auth event === ============" +JSON.stringify(event.detail));
+				if(event.detail["[AUTO]-CHECKLOGIN"] != undefined){
+					console.log("Page calling the embedded_svc" );
+				    console.log('event received ======='+JSON.stringify(event.detail));
+				    this.message["[SIGNIN-STATUS]"].Success=event.detail["[AUTO]-CHECKLOGIN"].Success;
+					this.message["[SIGNIN-STATUS]"].FirstName=event.detail["[AUTO]-CHECKLOGIN"].FirstName;
+					this.message["[SIGNIN-STATUS]"].LastName=event.detail["[AUTO]-CHECKLOGIN"].LastName;
+					this.message["[SIGNIN-STATUS]"].Email=event.detail["[AUTO]-CHECKLOGIN"].Email;
+				    embedded_svc.postMessage('chasitor.sendMessage', JSON.stringify(this.message));
+				}
+			}
+
+			var initESW = function(gslbBaseURL) {
+				//Place values here as well if they are not null
+				var oUserInfo = {
+					firstName: '',
+					lastName: '',
+					email: ''
+				};
+
+				embedded_svc.settings.displayHelpButton = true;
+				embedded_svc.settings.enabledFeatures = ['LiveAgent'];
+				embedded_svc.settings.entryFeature = 'LiveAgent';
+				embedded_svc.settings.extraPrechatFormDetails = [{
+					"value": (oUserInfo != null && oUserInfo.firstName != null) ? oUserInfo.firstName : '',
+					"transcriptFields": ["User_First_Name__c"]
+				}, {
+					"value": (oUserInfo != null && oUserInfo.lastName != null) ? oUserInfo.lastName : '',
+					"transcriptFields": ["User_Last_Name__c"]
+				}, {
+					"value": (oUserInfo != null && oUserInfo.email != null) ? oUserInfo.email : '',
+					"transcriptFields": ["User_Email__c"]
+				}];
+
+				embedded_svc.init(
+					'',
+					'',
+					gslbBaseURL,
+					'',
+					'',
+					{
+						baseLiveAgentContentURL: '',
+						deploymentId: '',
+						buttonId: '',
+						baseLiveAgentURL: '',
+						eswLiveAgentDevName: '',
+						isOfflineSupportEnabled: false
+					}
+				);
+			};
+
+			if (!window.embedded_svc) {
+				var s = document.createElement('script');
+				s.setAttribute('src', '/embeddedservice/5.0/esw.min.js');
+				s.onload = function() {
+					initESW(null);
+				};
+				document.body.appendChild(s);
+			} else {
+				initESW('https://service.force.com');
+			}
+		</script>
+	</body>
+</html>

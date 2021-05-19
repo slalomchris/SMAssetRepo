@@ -1,0 +1,113 @@
+<template>
+
+    <template if:false={isAgent}>
+        <template if:true={isSiteMessage}>
+            <lightning-formatted-rich-text class="hideMessage" value={content}>
+            </lightning-formatted-rich-text>
+        </template>
+        <template if:false={isSiteMessage}>
+            <lightning-formatted-rich-text class="chatMessage chasitor" value={content}>
+            </lightning-formatted-rich-text>
+        </template>
+    </template>
+    <template if:true={isUrl}>
+        <div class="chatMessage agent plainText">
+            <lightning-formatted-rich-text value={content}>
+            </lightning-formatted-rich-text>
+        </div>
+    </template>
+    <template if:true={isAgent}>
+        <template if:true={isPlainText}>
+            <div class="chatMessage agent plainText">
+                <lightning-formatted-rich-text value={content}>
+                </lightning-formatted-rich-text>
+            </div>
+        </template>
+
+        <template if:true={isTranscript}>
+            <div class="chatMessage agent plainText">
+                <lightning-formatted-rich-text value={content}>
+                </lightning-formatted-rich-text>
+            </div>
+        </template>
+
+        <template if:true={isKnowledge}>
+            <div class="chatMessage agent tabContainer">
+                <div class="btn-content" title="Page 1">
+                    <span><lightning-formatted-rich-text value={tab1Content}></lightning-formatted-rich-text></span>
+                  </div>
+                  
+                  <div class="btn-content" title="Page 2" style="display:none">
+                    <span><lightning-formatted-rich-text value={tab2Content}></lightning-formatted-rich-text></span> 
+                  </div>
+                  
+                  <div class="btn-content" title="Page 3" style="display:none">
+                    <span><lightning-formatted-rich-text value={tab3Content}></lightning-formatted-rich-text></span>
+                  </div>
+                  <template if:false={isSingleTabContent}>
+                    <div class="tab">
+                        <button class="buttonTab selected-tab" onclick={openTab} value="Page 1">{tab1Label}</button>
+                        <button class="buttonTab inactive-tab" onclick={openTab} value="Page 2">{tab2Label}</button>
+                        <button class="buttonTab inactive-tab" onclick={openTab} value="Page 3">{tab3Label}</button>
+                    </div>
+                </template>
+            </div>
+        </template>
+
+        <template if:true={isRichText}>
+            <div class="chatMessage agent richText fitWidth">
+                <lightning-formatted-rich-text value={content}>
+                </lightning-formatted-rich-text>
+            </div>
+        </template>
+
+        <template if:true={isLongText}>
+            <div class="chatMessage agent longText">
+                <lightning-formatted-rich-text value={content}></lightning-formatted-rich-text>
+            </div>
+        </template>
+
+        <template if:true={isYoutube}>
+            <div class="chatMessage agent youtube">
+                <iframe src={content} allowfullscreen>
+                </iframe>
+            </div>
+        </template>
+
+        <template if:true={isImage}>
+            <div class="chatMessage agent image">
+                <img src={content} />
+            </div>
+        </template>
+
+        <template if:true={isCarousel}>
+            <div class="carousel">
+                <lightning-carousel>
+                    <template for:each={content} for:item="carouselItem">
+                        <lightning-carousel-image
+                            key={carouselItem}
+                            src={carouselItem.productImage}
+                            header={carouselItem.productName}
+                            description={carouselItem.productDescription}
+                            value={carouselItem.productPage}
+                            onclick={navigateToProduct}>
+                        </lightning-carousel-image>
+                    </template>
+                </lightning-carousel>
+            </div>
+        </template>
+
+        <template if:true={isMap}>
+            <div class="chatMessage agent map">
+                <lightning-map
+                    map-markers={mapMarkers}
+                    markers-title={markersTitle}
+                    onmarkerselect={handleMarkerSelect}
+                    selected-marker-value={selectedMarkerValue} 
+                    list-view=hidden
+                    show-footer=true>
+                </lightning-map>
+            </div>
+        </template>        
+    </template>
+</template>
